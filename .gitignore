@@ -1,0 +1,31 @@
+# Build output
+bin/
+obj/
+
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Environment files
+.env
+.env.local
+*.Development.json
+*.Production.json
+
+# ReSharper / Rider
+_ReSharper*/
+*.ReSharper
+.idea/
+*.iml
+
+# NuGet
+packages/
+
+# Project specific (optional, adjust based on your project)
+ClientApp/
+node_modules/
+npm-debug.log*
+yarn.lock

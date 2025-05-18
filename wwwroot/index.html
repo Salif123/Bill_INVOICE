@@ -1,0 +1,39 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Blazor PDF App</title>
+    <base href="/" />
+    <link href="lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="app.css" rel="stylesheet" />
+</head>
+<body>
+    <div id="app">Loading...</div>
+
+    <!-- JS Files -->
+    <script src="lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="_framework/blazor.server.js"></script>
+
+    <!-- PDF Download Script -->
+    <script>
+        console.log("Blazor initialized");
+
+        window.downloadPDF = function (base64Data, fileName) {
+            console.log("Download initiated for:", fileName);
+            try {
+                const link = document.createElement('a');
+                link.href = 'data:application/pdf;base64,' + base64Data;
+                link.download = fileName;
+                document.body.appendChild(link);
+                link.click();
+                setTimeout(() => document.body.removeChild(link), 100);
+                return true;
+            } catch (error) {
+                console.error("Download failed:", error);
+                return false;
+            }
+        };
+    </script>
+</body>
+</html>

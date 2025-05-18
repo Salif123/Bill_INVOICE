@@ -1,0 +1,189 @@
+﻿@page "/pdf-generator"
+@using System.IO
+@inject PdfService PdfService
+@inject IJSRuntime JSRuntime
+@rendermode InteractiveServer
+
+<h3>Bill Report</h3>
+
+<button @onclick="GeneratePdf"
+        class="btn btn-primary"
+        disabled="@isGenerating">
+    @(isGenerating ? "Generating..." : "Generate PDF")
+</button>
+
+@if (errorMessage != null)
+{
+    <div class="alert alert-danger mt-3">@errorMessage</div>
+}
+
+<table class="table table-bordered mt-4">
+    <thead class="table-light">
+        <tr>
+            <th>Bill No</th>
+            <th>Date</th>
+            <th>Customer</th>
+            <th>Amount</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var bill in Bills)
+        {
+            <tr>
+                <td>@bill.BillNo</td>
+                <td>@bill.Date.ToString("yyyy-MM-dd")</td>
+                <td>@bill.Customer</td>
+                <td>@bill.Amount.ToString("C")</td>
+                <td>@bill.Status</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private bool isGenerating = false;
+    private string? errorMessage = null;
+
+    private List<Bill> Bills = new()
+{
+    // Page 1
+    new Bill { BillNo = "B001", Date = DateTime.Now.AddDays(-0), Customer = "John Doe", Amount = 120.00m, Status = "Paid" },
+    new Bill { BillNo = "B002", Date = DateTime.Now.AddDays(-1), Customer = "Jane Smith", Amount = 98.50m, Status = "Pending" },
+    new Bill { BillNo = "B003", Date = DateTime.Now.AddDays(-2), Customer = "Mark Lee", Amount = 210.00m, Status = "Paid" },
+    new Bill { BillNo = "B004", Date = DateTime.Now.AddDays(-3), Customer = "Alice Johnson", Amount = 150.75m, Status = "Pending" },
+    new Bill { BillNo = "B005", Date = DateTime.Now.AddDays(-4), Customer = "Bob Williams", Amount = 89.99m, Status = "Paid" },
+    new Bill { BillNo = "B006", Date = DateTime.Now.AddDays(-5), Customer = "Carol King", Amount = 320.00m, Status = "Paid" },
+    new Bill { BillNo = "B007", Date = DateTime.Now.AddDays(-6), Customer = "David Brown", Amount = 45.00m, Status = "Pending" },
+
+    // Page 2
+    new Bill { BillNo = "B008", Date = DateTime.Now.AddDays(-7), Customer = "Eve Davis", Amount = 180.40m, Status = "Paid" },
+    new Bill { BillNo = "B009", Date = DateTime.Now.AddDays(-8), Customer = "Frank Miller", Amount = 275.00m, Status = "Paid" },
+    new Bill { BillNo = "B010", Date = DateTime.Now.AddDays(-9), Customer = "Grace Lee", Amount = 130.00m, Status = "Pending" },
+    new Bill { BillNo = "B011", Date = DateTime.Now.AddDays(-10), Customer = "Hannah Moore", Amount = 210.25m, Status = "Paid" },
+    new Bill { BillNo = "B012", Date = DateTime.Now.AddDays(-11), Customer = "Ian Clark", Amount = 95.00m, Status = "Pending" },
+    new Bill { BillNo = "B013", Date = DateTime.Now.AddDays(-12), Customer = "Jack Wilson", Amount = 310.50m, Status = "Paid" },
+    new Bill { BillNo = "B014", Date = DateTime.Now.AddDays(-13), Customer = "Karen Taylor", Amount = 75.25m, Status = "Paid" },
+
+    // Page 3
+    new Bill { BillNo = "B015", Date = DateTime.Now.AddDays(-14), Customer = "Liam Anderson", Amount = 420.00m, Status = "Pending" },
+    new Bill { BillNo = "B016", Date = DateTime.Now.AddDays(-15), Customer = "Mia Martinez", Amount = 135.99m, Status = "Paid" },
+    new Bill { BillNo = "B017", Date = DateTime.Now.AddDays(-16), Customer = "Noah Thomas", Amount = 290.00m, Status = "Pending" },
+    new Bill { BillNo = "B018", Date = DateTime.Now.AddDays(-17), Customer = "Olivia Garcia", Amount = 68.75m, Status = "Paid" },
+    new Bill { BillNo = "B019", Date = DateTime.Now.AddDays(-18), Customer = "Peter Robinson", Amount = 175.00m, Status = "Paid" },
+    new Bill { BillNo = "B020", Date = DateTime.Now.AddDays(-19), Customer = "Quinn Lewis", Amount = 230.50m, Status = "Pending" },
+    new Bill { BillNo = "B021", Date = DateTime.Now.AddDays(-20), Customer = "Rachel Walker", Amount = 99.99m, Status = "Paid" },
+
+    // Page 4
+    new Bill { BillNo = "B022", Date = DateTime.Now.AddDays(-21), Customer = "Samuel Hall", Amount = 315.00m, Status = "Pending" },
+    new Bill { BillNo = "B023", Date = DateTime.Now.AddDays(-22), Customer = "Tina Young", Amount = 145.25m, Status = "Paid" },
+    new Bill { BillNo = "B024", Date = DateTime.Now.AddDays(-23), Customer = "Umar Khan", Amount = 88.50m, Status = "Pending" },
+    new Bill { BillNo = "B025", Date = DateTime.Now.AddDays(-24), Customer = "Victoria Scott", Amount = 265.00m, Status = "Paid" },
+    new Bill { BillNo = "B026", Date = DateTime.Now.AddDays(-25), Customer = "William Green", Amount = 120.75m, Status = "Pending" },
+    new Bill { BillNo = "B027", Date = DateTime.Now.AddDays(-26), Customer = "Xena Adams", Amount = 340.00m, Status = "Paid" },
+    new Bill { BillNo = "B028", Date = DateTime.Now.AddDays(-27), Customer = "Yusuf Baker", Amount = 55.25m, Status = "Paid" },
+
+    // Page 5
+    new Bill { BillNo = "B029", Date = DateTime.Now.AddDays(-28), Customer = "Zoe Carter", Amount = 195.00m, Status = "Pending" },
+    new Bill { BillNo = "B030", Date = DateTime.Now.AddDays(-29), Customer = "Aaron Hill", Amount = 280.50m, Status = "Paid" },
+    new Bill { BillNo = "B031", Date = DateTime.Now.AddDays(-30), Customer = "Bella Cooper", Amount = 115.00m, Status = "Pending" },
+    new Bill { BillNo = "B032", Date = DateTime.Now.AddDays(-31), Customer = "Caleb Ward", Amount = 72.99m, Status = "Paid" },
+    new Bill { BillNo = "B033", Date = DateTime.Now.AddDays(-32), Customer = "Diana Morris", Amount = 410.00m, Status = "Pending" },
+    new Bill { BillNo = "B034", Date = DateTime.Now.AddDays(-33), Customer = "Ethan Rivera", Amount = 155.25m, Status = "Paid" },
+    new Bill { BillNo = "B035", Date = DateTime.Now.AddDays(-34), Customer = "Fiona Peterson", Amount = 92.50m, Status = "Pending" },
+
+    // Page 6
+    new Bill { BillNo = "B036", Date = DateTime.Now.AddDays(-35), Customer = "George Reed", Amount = 225.00m, Status = "Paid" },
+    new Bill { BillNo = "B037", Date = DateTime.Now.AddDays(-36), Customer = "Hazel Bailey", Amount = 330.75m, Status = "Pending" },
+    new Bill { BillNo = "B038", Date = DateTime.Now.AddDays(-37), Customer = "Ivan Coleman", Amount = 68.00m, Status = "Paid" },
+    new Bill { BillNo = "B039", Date = DateTime.Now.AddDays(-38), Customer = "Julia Foster", Amount = 145.99m, Status = "Pending" },
+    new Bill { BillNo = "B040", Date = DateTime.Now.AddDays(-39), Customer = "Kevin Powell", Amount = 275.50m, Status = "Paid" },
+    new Bill { BillNo = "B041", Date = DateTime.Now.AddDays(-40), Customer = "Luna Hughes", Amount = 110.25m, Status = "Pending" },
+    new Bill { BillNo = "B042", Date = DateTime.Now.AddDays(-41), Customer = "Mason Butler", Amount = 88.00m, Status = "Paid" },
+
+    // Page 7
+    new Bill { BillNo = "B043", Date = DateTime.Now.AddDays(-42), Customer = "Nora Simmons", Amount = 365.00m, Status = "Pending" },
+    new Bill { BillNo = "B044", Date = DateTime.Now.AddDays(-43), Customer = "Owen Russell", Amount = 125.75m, Status = "Paid" },
+    new Bill { BillNo = "B045", Date = DateTime.Now.AddDays(-44), Customer = "Penelope Ortiz", Amount = 240.50m, Status = "Pending" },
+    new Bill { BillNo = "B046", Date = DateTime.Now.AddDays(-45), Customer = "Quentin Jenkins", Amount = 95.99m, Status = "Paid" },
+    new Bill { BillNo = "B047", Date = DateTime.Now.AddDays(-46), Customer = "Ruby Perry", Amount = 180.00m, Status = "Pending" },
+    new Bill { BillNo = "B048", Date = DateTime.Now.AddDays(-47), Customer = "Simon Long", Amount = 420.25m, Status = "Paid" },
+    new Bill { BillNo = "B049", Date = DateTime.Now.AddDays(-48), Customer = "Tara Flores", Amount = 65.50m, Status = "Pending" },
+    new Bill { BillNo = "B050", Date = DateTime.Now.AddDays(-49), Customer = "Victor Sanders", Amount = 295.00m, Status = "Paid" }
+};
+
+    private async Task GeneratePdf()
+    {
+        try
+        {
+            isGenerating = true;
+            errorMessage = null;
+            StateHasChanged();
+
+            var rowsHtml = string.Join("\n", Bills.Select(bill => $@"
+                <tr>
+                    <td>{bill.BillNo}</td>
+                    <td>{bill.Date:yyyy-MM-dd}</td>
+                    <td>{bill.Customer}</td>
+                    <td>{bill.Amount:C}</td>
+                    <td>{bill.Status}</td>
+                </tr>
+            "));
+
+            var htmlContent = $@"
+                <html>
+                <head>
+                    <style>
+                        body {{ font-family: Arial, sans-serif; }}
+                        table {{ width: 100%; border-collapse: collapse; }}
+                        th, td {{ border: 1px solid #ddd; padding: 8px; }}
+                        th {{ background-color: #f2f2f2; }}
+                    </style>
+                </head>
+                <body>
+                    
+                    <h2>Bill Report</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Bill No</th>
+                                <th>Date</th>
+                                <th>Customer</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {rowsHtml}
+                        </tbody>
+                    </table>
+                </body>
+                </html>";
+
+            var pdfBytes = PdfService.GeneratePdfFromHtml(htmlContent);
+
+            await JSRuntime.InvokeVoidAsync("downloadPDF",
+                Convert.ToBase64String(pdfBytes),
+                "BillsReport.pdf");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error: {ex.Message}";
+            Console.WriteLine(ex);
+        }
+        finally
+        {
+            isGenerating = false;
+            StateHasChanged();
+        }
+    }
+
+    public class Bill
+    {
+        public string BillNo { get; set; } = string.Empty;
+        public DateTime Date { get; set; }
+        public string Customer { get; set; } = string.Empty;
+        public decimal Amount { get; set; }
+        public string Status { get; set; } = string.Empty;
+    }
+}
