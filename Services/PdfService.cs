@@ -33,6 +33,10 @@ namespace qwenpdf.Services
             // ✅ Convert without closing the PDF
             var document = HtmlConverter.ConvertToDocument(htmlContent, pdf, converterProperties);
 
+            // Reserve space: Top = HeaderHeight + padding, Bottom = FooterHeight + padding
+            document.SetMargins(HeaderHeight + 20, SideMargin, FooterHeight + 20, SideMargin);
+
+
             // ✅ Add header and footer before closing
             if (HeaderFooterImagesExist())
             {
@@ -63,28 +67,38 @@ namespace qwenpdf.Services
             var headerPath = GetImagePath("header.jpg");
             var footerPath = GetImagePath("footer.jpg");
 
+            var headerImage = ImageDataFactory.Create(headerPath);
+            var footerImage = ImageDataFactory.Create(footerPath);
+
             for (int i = 1; i <= pdf.GetNumberOfPages(); i++)
             {
                 var page = pdf.GetPage(i);
                 var pageSize = page.GetPageSize();
 
+                var canvas = new Canvas(page, pageSize);
+
                 // Add header if exists
                 if (File.Exists(headerPath))
                 {
-                    new Canvas(page, pageSize)
-                        .Add(new Image(ImageDataFactory.Create(headerPath))
-                            .SetFixedPosition(i, SideMargin, pageSize.GetHeight() - HeaderHeight)
-                            .SetWidth(pageSize.GetWidth() - (2 * SideMargin)));
+                    var header = new Image(headerImage)
+                        .SetFixedPosition(i, SideMargin, pageSize.GetTop() - HeaderHeight)
+                        .SetHeight(HeaderHeight)
+                        .SetWidth(pageSize.GetWidth() - (2 * SideMargin));
+
+                    canvas.Add(header);
                 }
 
                 // Add footer if exists
                 if (File.Exists(footerPath))
                 {
-                    new Canvas(page, pageSize)
-                        .Add(new Image(ImageDataFactory.Create(footerPath))
-                            .SetFixedPosition(i, SideMargin, FooterHeight)
-                            .SetWidth(pageSize.GetWidth() - (2 * SideMargin)));
+                    var footer = new Image(footerImage)
+                        .SetFixedPosition(i, SideMargin, 0) // Bottom of page
+                        .SetHeight(FooterHeight)
+                        .SetWidth(pageSize.GetWidth() - (2 * SideMargin));
+
+                    canvas.Add(footer);
                 }
+                canvas.Close();
             }
         }
     }

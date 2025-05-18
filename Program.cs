@@ -9,6 +9,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+
+
 // Register your PDF service
 builder.Services.AddScoped<PdfService>();
 

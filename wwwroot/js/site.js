@@ -1,4 +1,10 @@
-﻿window.downloadPDF = function (base64Data, fileName) {
+﻿//window.getPdfHtml = function (elementId) {
+//    return document.getElementById(elementId).outerHTML;
+//};
+
+
+
+window.downloadPDF = function (base64Data, fileName) {
     console.log("Download initiated for:", fileName);
     try {
         const link = document.createElement('a');
